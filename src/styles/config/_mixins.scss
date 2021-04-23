@@ -1,0 +1,33 @@
+@mixin default_separator {
+  content: '';
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 2px;
+  background: #ddd;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@mixin dot-separator($direction) {
+  @if $direction == left {
+    //...
+
+    &::before {
+      @include default_separator;
+      left: 0;
+
+      @content;
+    }
+  } @else {
+    //...
+
+    &::after {
+      @include default_separator;
+      right: 0;
+      
+      @content;
+    }
+  }
+
+}

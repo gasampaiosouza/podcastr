@@ -1,0 +1,161 @@
+@use '../styles/config/mixins' as *;
+
+@mixin play-button($button-size: 2.5rem) {
+  width: $button-size;
+  height: $button-size;
+  background: var(--white);
+  border: 1px solid var(--gray-100);
+  border-radius: 0.675rem;
+  transition: .2s ease-in-out;
+  font-size: 0;
+
+  &:hover {
+    filter: brightness(0.95);
+  }
+
+  img {
+    $image-size: $button-size / 1.5;
+    
+    width: $image-size;
+    height: $image-size;
+  }
+}
+
+.container {
+  padding: 0 4rem;
+  height: calc(100vh - 6.5rem);
+  overflow-y: scroll;
+
+  h2 {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+  }
+}
+
+.latest-episodes {
+  //...
+
+  ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem;
+
+    li {
+      position: relative;
+      background: var(--white);
+      border: 1px solid var(--gray-100);
+      padding: 1.25rem;
+      border-radius: 1.5rem;
+
+      display: flex;
+      align-items: center;
+
+      img {
+        $size: 6rem;
+
+        width: $size;
+        height: $size;
+        border-radius: 1rem;
+      }
+
+      .episode-details {
+        flex: 1;
+        margin-left: 1rem;
+
+        a {
+          display: block;
+          color: var(--gray-800);
+          font-family: Lexend, sans-serif;
+          font-weight: 600;
+          text-decoration: none;
+          line-height: 1.4;
+
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+
+        p {
+          font-size: 0.0875rem;
+          margin-top: 0.5rem;
+          max-width: 70%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        span {
+          display: inline-block;
+          margin-top: 0.5rem;
+          font-size: 0.875rem;
+
+          &:last-child {
+            position: relative;
+            margin-left: 0.5rem;
+            padding-left: 0.5rem;
+
+            @include dot-separator(left);
+          }
+        }
+      }
+
+      button {
+        position: absolute;
+        right: 2rem;
+        bottom: 2rem;
+
+        @include play-button(2.5rem);
+      }
+    }
+  }
+}
+
+.all-episodes {
+  padding-bottom: 2rem;
+  
+  table {
+    width: 100%;
+
+    th, td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--gray-100);
+    }
+
+    th {
+      color: var(--gray-200);
+      text-transform: uppercase;
+      font: 500 0.75rem Lexend, sans-serif;
+      text-align: left;
+    }
+
+    td {
+      font-size: 0.875rem;
+
+      img {
+        $image-size: 2.5rem;
+
+        width: $image-size;
+        height: $image-size;
+        border-radius: 0.5rem;
+      }
+
+      a {
+        color: var(--gray-800);
+        font-family: Lexend, sans-serif;
+        font-weight: 600;
+        text-decoration: none;
+        line-height: 1.4;
+        font-size: 1rem;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      button {
+        @include play-button(2rem);
+      }
+    }
+  }
+}
