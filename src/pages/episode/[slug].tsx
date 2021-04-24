@@ -1,20 +1,30 @@
 import Image from 'next/image';
 import Link from 'next/link';
+import Head from 'next/head';
 
 import { Episodes } from 'interfaces';
 import { GetStaticPaths, GetStaticProps } from 'next';
 import { api } from 'src/services/api';
-import { getParsedEpisodes } from 'src/utils/getParsedEpisodes';
 
 import styles from './Episode.module.scss';
+import { format, parseISO } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+import { convertDurationToTimeString } from 'src/utils/convertDurationToTimeString';
+import { usePlayer } from 'src/contexts/PlayerContext';
 
 type IEpisode = {
   episode: Episodes;
 };
 
 export default function Episode({ episode }: IEpisode) {
+  const { play } = usePlayer();
+
   return (
     <div className={styles.container}>
+      <Head>
+        <title>{episode.title}</title>
+      </Head>
+
       <div className={styles['thumbnail-container']}>
         <Link href="/">
           <button>
@@ -29,7 +39,7 @@ export default function Episode({ episode }: IEpisode) {
           objectFit="cover"
         />
 
-        <button>
+        <button onClick={() => play(episode)}>
           <img src="/play.svg" alt="Tocar episódio" />
         </button>
       </div>
@@ -51,17 +61,37 @@ export default function Episode({ episode }: IEpisode) {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
+  const { data } = await api.get<Episodes[]>(`/episodes`, {
+    params: {
+      _limit: 2,
+      _sort: 'published_at',
+      _order: 'desc',
+    },
+  });
+
+  const paths = data.map((episode) => ({
+    params: { slug: episode.id },
+  }));
+
   return {
-    paths: [],
+    paths,
     fallback: 'blocking',
   };
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
   const { slug } = ctx.params;
-  const { data } = await api.get(`/episodes/${slug}`);
+  const { data } = await api.get<Episodes>(`/episodes/${slug}`);
 
-  const episode = getParsedEpisodes(data);
+  const published_at = format(parseISO(data.published_at), 'd MMM yy', {
+    locale: ptBR,
+  });
+
+  const episode = {
+    ...data,
+    published_at,
+    formatted_duration: convertDurationToTimeString(data.file.duration),
+  };
 
   return {
     props: { episode },

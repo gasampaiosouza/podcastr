@@ -9,7 +9,7 @@ import { api } from 'src/services/api';
 import { convertDurationToTimeString } from 'src/utils/convertDurationToTimeString';
 
 import styles from './Home.module.scss';
-import { getParsedEpisodes } from 'src/utils/getParsedEpisodes';
+import { usePlayer } from 'src/contexts/PlayerContext';
 
 type IHome = {
   latestEpisodes: Episodes[];
@@ -17,13 +17,17 @@ type IHome = {
 };
 
 export default function Home({ latestEpisodes, allEpisodes }: IHome) {
+  const { playList } = usePlayer();
+
+  const episodeList = [...latestEpisodes, ...allEpisodes];
+
   return (
     <div className={styles.container}>
       <section className={styles['latest-episodes']}>
         <h2>Últimos lançamentos</h2>
 
         <ul>
-          {latestEpisodes.map((episode) => (
+          {latestEpisodes.map((episode, index) => (
             <li key={episode.id}>
               <Image
                 width={192}
@@ -43,7 +47,7 @@ export default function Home({ latestEpisodes, allEpisodes }: IHome) {
                 <span>{episode.formatted_duration}</span>
               </div>
 
-              <button>
+              <button onClick={() => playList(episodeList, index)}>
                 <img src="/play-green.svg" alt="Tocar episódio" />
               </button>
             </li>
@@ -67,7 +71,7 @@ export default function Home({ latestEpisodes, allEpisodes }: IHome) {
           </thead>
 
           <tbody>
-            {allEpisodes.map((episode) => (
+            {allEpisodes.map((episode, index) => (
               <tr key={episode.id}>
                 <td style={{ width: 72 }}>
                   <Image
@@ -88,7 +92,7 @@ export default function Home({ latestEpisodes, allEpisodes }: IHome) {
                 <td style={{ width: 100 }}>{episode.published_at}</td>
                 <td>{episode.formatted_duration}</td>
                 <td>
-                  <button>
+                  <button onClick={() => playList(episodeList, index + latestEpisodes.length)}>
                     <img src="/play-green.svg" alt="Tocar episódio" />
                   </button>
                 </td>
@@ -110,7 +114,18 @@ export const getStaticProps: GetStaticProps = async () => {
     },
   });
 
-  const episodes = getParsedEpisodes(data);
+  const episodes = data.map((episode: Episodes) => {
+    const published_at = format(parseISO(episode.published_at), 'd MMM yy', {
+      locale: ptBR,
+    });
+
+    return {
+      ...episode,
+      published_at,
+      formatted_duration: convertDurationToTimeString(episode.file.duration),
+    };
+  })
+  
   const latestEpisodes = episodes.slice(0, 2);
   const allEpisodes = episodes.slice(2, episodes.length);
 

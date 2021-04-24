@@ -22,5 +22,5 @@ export function getParsedEpisodes(data: Episodes[] | Episodes) {
     return FINAL_DATA;
   }
 
-  return PARSE_DATA(data);
+  return Array(PARSE_DATA(data));
 }
